@@ -1,0 +1,11 @@
+Agent: Good afternoon, thanks for calling in! How can I help you today?
+Customer: Hi, I just wanted to say the new dashboard update is fantastic.
+Agent: That's wonderful to hear, I'll pass that along to the team.
+Customer: The load times are so much faster now, and the new export button saved me an hour last week.
+Agent: I'm really glad it's working well for you. Is there anything else I can help with?
+Customer: Actually yes, could you add my colleague to the account as a viewer?
+Agent: Absolutely, I can do that right now. What's their email address?
+Customer: It's jordan@example.com, thank you so much.
+Agent: Done — they'll get an invite within a few minutes.
+Customer: Perfect, you've been great. Have a good one!
+Agent: You too, thanks for calling in!

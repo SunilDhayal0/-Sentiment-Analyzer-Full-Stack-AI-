@@ -1,0 +1,14 @@
+Agent: Hi there, thanks for calling, what can I do for you?
+Customer: My internet has been dropping every evening for the past week.
+Agent: That sounds really frustrating, especially at a consistent time like that.
+Customer: Yeah, it's usually right when I sit down to work, so it's been a headache.
+Agent: Let me check the line status for your address... I do see some signal noise reported on your node.
+Customer: Okay, at least that explains it. I was worried it was something on my end.
+Agent: Not at all, this is on our infrastructure side. I'm scheduling a technician for tomorrow morning.
+Customer: That's good, but can someone come today instead? I have back-to-back calls tonight.
+Agent: I completely understand the urgency. Let me check for an earlier slot... I can get someone out by 4pm today.
+Customer: That would be great, thank you for working on it.
+Agent: Of course. You'll get a text confirmation shortly with the technician's window.
+Customer: Appreciate it. Hopefully this fixes it for good.
+Agent: I'll also apply a credit to your account for the inconvenience this week.
+Customer: Oh, thank you, that's really kind. This call actually went better than I expected.

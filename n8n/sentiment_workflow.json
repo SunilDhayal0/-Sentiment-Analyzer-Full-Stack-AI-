@@ -1,0 +1,120 @@
+{
+  "name": "Sentiment Analyzer - Transcript Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sentiment-analyze",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "1a1a1a1a-0001-4a4a-8a8a-000000000001",
+      "name": "Webhook - Receive Transcript",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "webhookId": "sentiment-analyze"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Validate incoming payload from the frontend\nconst body = $input.first().json.body || {};\nconst transcript = (body.transcript || '').trim();\n\nif (!transcript) {\n  throw new Error('Missing \"transcript\" field in request body.');\n}\n\nconst prompt = `You are a call-center QA analyst. Analyze the following conversation transcript and return ONLY a single valid JSON object (no markdown fences, no commentary) matching exactly this schema:\n\n{\n  \"overall_sentiment\": \"Positive\" | \"Negative\" | \"Neutral\",\n  \"overall_confidence\": number (0-1),\n  \"sentences\": [ { \"text\": string, \"sentiment\": \"Positive\"|\"Negative\"|\"Neutral\", \"score\": number (-1 to 1), \"speaker\": string | null } ],\n  \"emotions\": [ { \"label\": string, \"intensity\": number (0-1) } ],\n  \"summary\": string,\n  \"resolution_status\": \"Resolved\" | \"Unresolved\" | \"Unclear\",\n  \"escalation_risk\": \"Low\" | \"Medium\" | \"High\",\n  \"csat_estimate\": number (1-5),\n  \"agent_empathy_score\": number (0-100),\n  \"key_topics\": [string],\n  \"action_items\": [string]\n}\n\nSplit the transcript into individual utterances in original order for \"sentences\". Capture speaker labels like \"Agent:\" / \"Customer:\" when present. Return ONLY the JSON object.\n\nTranscript:\n\"\"\"\n${transcript}\n\"\"\"`;\n\nreturn [{ json: { prompt, transcript } }];"
+      },
+      "id": "1a1a1a1a-0002-4a4a-8a8a-000000000002",
+      "name": "Build Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [420, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "={{ $credentials.anthropicApi.apiKey }}" },
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "content-type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"claude-sonnet-4-6\", max_tokens: 4000, messages: [ { role: \"user\", content: $json.prompt } ] }) }}",
+        "options": {}
+      },
+      "id": "1a1a1a1a-0003-4a4a-8a8a-000000000003",
+      "name": "Claude - Analyze Sentiment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [640, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "anthropicApi",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract and safely parse the JSON object the model returned\nconst response = $input.first().json;\nconst textBlock = (response.content || []).find(b => b.type === 'text');\n\nif (!textBlock) {\n  throw new Error('No text content returned from the model.');\n}\n\nlet cleaned = textBlock.text.replace(/```json|```/g, '').trim();\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n  if (!match) throw new Error('Could not parse model output as JSON: ' + cleaned.slice(0, 200));\n  parsed = JSON.parse(match[0]);\n}\n\nreturn [{ json: parsed }];"
+      },
+      "id": "1a1a1a1a-0004-4a4a-8a8a-000000000004",
+      "name": "Parse Model Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [860, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              { "name": "Access-Control-Allow-Origin", "value": "*" }
+            ]
+          }
+        }
+      },
+      "id": "1a1a1a1a-0005-4a4a-8a8a-000000000005",
+      "name": "Respond to Frontend",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [1080, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": $json.error?.message || \"Analysis failed\" } }}",
+        "options": { "responseCode": 500 }
+      },
+      "id": "1a1a1a1a-0006-4a4a-8a8a-000000000006",
+      "name": "Respond - Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.2,
+      "position": [860, 480]
+    }
+  ],
+  "connections": {
+    "Webhook - Receive Transcript": {
+      "main": [[{ "node": "Build Prompt", "type": "main", "index": 0 }]]
+    },
+    "Build Prompt": {
+      "main": [[{ "node": "Claude - Analyze Sentiment", "type": "main", "index": 0 }]]
+    },
+    "Claude - Analyze Sentiment": {
+      "main": [[{ "node": "Parse Model Output", "type": "main", "index": 0 }]],
+      "error": [[{ "node": "Respond - Error", "type": "main", "index": 0 }]]
+    },
+    "Parse Model Output": {
+      "main": [[{ "node": "Respond to Frontend", "type": "main", "index": 0 }]],
+      "error": [[{ "node": "Respond - Error", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "Receives a call transcript from the frontend (POST /webhook/sentiment-analyze with { transcript }), builds an analysis prompt, calls Claude, parses the structured JSON result, and returns it to the UI. Import this file directly into n8n (Workflows -> Import from File)."
+  }
+}

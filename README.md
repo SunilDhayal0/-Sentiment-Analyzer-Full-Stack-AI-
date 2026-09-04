@@ -1,5 +1,8 @@
 # Sentiment Analyzer — Full Stack + AI
 
+🔗 **Live Demo:** [https://frontend-coral-two-nysxkmqweu.vercel.app](https://frontend-coral-two-nysxkmqweu.vercel.app)  
+🔑 **Demo Credentials:** Username: `admin` | Password: `admin`
+
 Upload a call transcript → get overall + sentence-level sentiment, emotion
 detection, a summary, and a set of KPIs, shown in a dashboard.
 
@@ -87,4 +90,3 @@ and drop `backend/` entirely — the JSON contract is identical either way.
 `sample_data/` has three ready-to-use transcripts (`positive_call.txt`,
 `negative_call.txt`, `mixed_call.txt`) for testing without needing a real
 recording.
-"# Sentiment Analyzer Full Stack AI" 

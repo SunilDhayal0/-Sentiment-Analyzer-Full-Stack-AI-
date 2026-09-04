@@ -1,0 +1,12 @@
+Agent: Thank you for calling support, how can I help?
+Customer: This is the third time I'm calling about the same billing error.
+Agent: I'm sorry about that, let me look into your account.
+Customer: I was charged twice last month and nobody has refunded me yet.
+Agent: I can see the duplicate charge here, I apologize for the delay.
+Customer: I was told last week it would be fixed in 24 hours. It's been a week.
+Agent: You're right to be frustrated, that shouldn't have happened.
+Customer: At this point I'm considering canceling my subscription entirely.
+Agent: I understand completely. Let me escalate this to a supervisor right now.
+Customer: I've heard that before too. I just want my money back.
+Agent: I hear you, and I'm flagging this as urgent so it's resolved today.
+Customer: We'll see. This has been an awful experience.
